@@ -37,5 +37,21 @@ mod tests {
     #[test]
     fn it_validates_correctly() {
         assert_eq!(valid("n78-890351", false), true);
+        assert_eq!(valid("n78-89035100444", false), true);
+        assert_eq!(valid("n78", false), true);
+        assert_eq!(valid("na078-890351", false), true);
+        assert_eq!(valid("n078-890351", false), true);
+        assert_eq!(valid("na078-890351", false), true);
+        assert_eq!(valid("0an78-890351", false), true);
+        assert_eq!(valid("n78-89c0351", false), true);
+
+        // StdNum::LCCN.valid?("n78-890351").must_equal true
+        // StdNum::LCCN.valid?("n78-89035100444").must_equal false, "Too long"
+        // StdNum::LCCN.valid?("n78").must_equal false, "Too short"
+        // StdNum::LCCN.valid?("na078-890351").must_equal false, "naa78-890351 should start with three letters or digits"
+        // StdNum::LCCN.valid?("n078-890351").must_equal false, "n078-890351 should start with two letters or two digits"
+        // StdNum::LCCN.valid?("na078-890351").must_equal false, "na078-890351 should start with three letters or digits"
+        // StdNum::LCCN.valid?("0an78-890351").must_equal false, "0an78-890351 should start with three letters or digits"
+        // StdNum::LCCN.valid?("n78-89c0351").must_equal false, "n78-89c0351 has a letter after the dash"
     }
 }
