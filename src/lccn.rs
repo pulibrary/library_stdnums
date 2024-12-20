@@ -10,6 +10,10 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
     if !suffix {
         return false;
     }
+    match clean.len() {
+        8 => true,
+        _ => false,
+    }
     //   case clean.size # "...is a character string eight to twelve digits in length"
     //   when 8
     //     return true
@@ -26,7 +30,7 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
     //   end
 
     //   return false
-    true
+    // true
 }
 
 
@@ -37,13 +41,13 @@ mod tests {
     #[test]
     fn it_validates_correctly() {
         assert_eq!(valid("n78-890351", false), true);
-        assert_eq!(valid("n78-89035100444", false), true);
-        assert_eq!(valid("n78", false), true);
-        assert_eq!(valid("na078-890351", false), true);
-        assert_eq!(valid("n078-890351", false), true);
-        assert_eq!(valid("na078-890351", false), true);
-        assert_eq!(valid("0an78-890351", false), true);
-        assert_eq!(valid("n78-89c0351", false), true);
+        assert_eq!(valid("n78-89035100444", false), false, "Too long");
+        assert_eq!(valid("n78", false), false, "Too short");
+        assert_eq!(valid("na078-890351", false), false, "naa78-890351 should start with three letters or digits");
+        assert_eq!(valid("n078-890351", false), false, "n078-890351 should start with two letters or two digits");
+        assert_eq!(valid("na078-890351", false), false, "na078-890351 should start with three letters or digits");
+        assert_eq!(valid("0an78-890351", false), false, "0an78-890351 should start with three letters or digits");
+        assert_eq!(valid("n78-89c0351", false), false, "n78-89c0351 has a letter after the dash");
 
         // StdNum::LCCN.valid?("n78-890351").must_equal true
         // StdNum::LCCN.valid?("n78-89035100444").must_equal false, "Too long"
