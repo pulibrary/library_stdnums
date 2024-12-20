@@ -4,14 +4,17 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
     // clean = lccn.gsub(/\-/, '')
     let clean = str::replace(lccn, '-', "");
     //   suffix = clean[-8..-1] # "the rightmost eight characters are always digits"
-    let re = Regex::new(r".*\d{8}$").unwrap();
-    let suffix = re.is_match(&clean);
+    let last_eight_re: Regex = Regex::new(r".*\d{8}$").unwrap();
+    let suffix = last_eight_re.is_match(&clean);
     //   return false unless suffix and suffix =~ /^\d+$/
     if !suffix {
         return false;
     }
+
     match clean.len() {
         8 => true,
+        9 => clean.chars().next().unwrap().is_alphabetic(),
+        10 => clean[..1].chars().all(char::is_numeric) || clean[..1].chars().all(char::is_alphabetic),
         _ => false,
     }
     //   case clean.size # "...is a character string eight to twelve digits in length"
@@ -40,7 +43,13 @@ mod tests {
 
     #[test]
     fn it_validates_correctly() {
+        assert_eq!(valid("78-890351", false), true);
         assert_eq!(valid("n78-890351", false), true);
+        assert_eq!(valid("2001-890351", false), true);
+        assert_eq!(valid("nb78-890351", false), true);
+        assert_eq!(valid("agr78-890351", false), true);
+        assert_eq!(valid("n2001-890351", false), true);
+        assert_eq!(valid("nb2001-890351", false), true);
         assert_eq!(valid("n78-89035100444", false), false, "Too long");
         assert_eq!(valid("n78", false), false, "Too short");
         assert_eq!(valid("na078-890351", false), false, "naa78-890351 should start with three letters or digits");
