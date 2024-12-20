@@ -14,7 +14,10 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
     match clean.len() {
         8 => true,
         9 => clean.chars().next().unwrap().is_alphabetic(),
-        10 => clean[..1].chars().all(char::is_numeric) || clean[..1].chars().all(char::is_alphabetic),
+        // 10 => Regex::new(r"^(\d{2}|[A-Za-z]{2})").unwrap().is_match(&clean),
+        10 => clean[..2].chars().all(char::is_numeric) || clean[..2].chars().all(char::is_alphabetic),
+        11 => Regex::new(r"^[A-Za-z](\d{2}|[A-Za-z]{2})").unwrap().is_match(&clean),
+        12 => Regex::new(r"^[A-Za-z]{2}\d{2}").unwrap().is_match(&clean),
         _ => false,
     }
     //   case clean.size # "...is a character string eight to twelve digits in length"
