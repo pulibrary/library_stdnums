@@ -27,6 +27,12 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
     }
 }
 
+pub fn reduce_to_basic(lccn: &str) -> String {
+    lccn.replace(char::is_whitespace, "")
+    .replace("http://lccn.loc.gov/", "")
+    .chars().take_while(|&ch| ch != '/').collect::<String>()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -78,4 +84,11 @@ mod tests {
             "n78-89c0351 has a letter after the dash"
         );
     }
+
+    #[test]
+    fn it_reduces_to_basic_form() {
+        assert_eq!(reduce_to_basic("n  78890351 "), "n78890351", "It removes spaces"); 
+        assert_eq!(reduce_to_basic("http://lccn.loc.gov/89001234"), "89001234", "It removes the URI");
+        assert_eq!(reduce_to_basic("   94014580 /AC/r95"), "94014580", "It removes everything after the first /"); 
+    }    
 }
