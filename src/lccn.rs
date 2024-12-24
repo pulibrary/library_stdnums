@@ -27,10 +27,32 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
     }
 }
 
-pub fn reduce_to_basic(lccn: &str) -> String {
+/// Normalize an LCCN string based on the criteria at
+/// https://www.loc.gov/marc/lccn-namespace.html#syntax
+///
+/// Returns None if the lccn is not valid
+pub fn normalize(lccn: &str) -> Option<String> {
+    let mut lccn_segments = lccn.split('-');
+    let first_segment = lccn_segments.next()?;
+
+    let second_segment = match lccn_segments.next() {
+        Some(segment) => segment,
+        None => "",
+    };
+    let without_hyphen = format!("{}{:0>6}", first_segment, second_segment);
+
+    if valid(&without_hyphen, true) {
+        return Some(without_hyphen);
+    }
+    None
+}
+
+fn reduce_to_basic(lccn: &str) -> String {
     lccn.replace(char::is_whitespace, "")
-    .replace("http://lccn.loc.gov/", "")
-    .chars().take_while(|&ch| ch != '/').collect::<String>()
+        .replace("http://lccn.loc.gov/", "")
+        .chars()
+        .take_while(|&ch| ch != '/')
+        .collect::<String>()
 }
 
 #[cfg(test)]
@@ -87,8 +109,35 @@ mod tests {
 
     #[test]
     fn it_reduces_to_basic_form() {
-        assert_eq!(reduce_to_basic("n  78890351 "), "n78890351", "It removes spaces"); 
-        assert_eq!(reduce_to_basic("http://lccn.loc.gov/89001234"), "89001234", "It removes the URI");
-        assert_eq!(reduce_to_basic("   94014580 /AC/r95"), "94014580", "It removes everything after the first /"); 
-    }    
+        assert_eq!(
+            reduce_to_basic("n  78890351 "),
+            "n78890351",
+            "It removes spaces"
+        );
+        assert_eq!(
+            reduce_to_basic("http://lccn.loc.gov/89001234"),
+            "89001234",
+            "It removes the URI"
+        );
+        assert_eq!(
+            reduce_to_basic("   94014580 /AC/r95"),
+            "94014580",
+            "It removes everything after the first /"
+        );
+    }
+
+    #[test]
+    fn it_normalizes() {
+        assert_eq!(
+            normalize("2001-000002").unwrap(),
+            "2001000002",
+            "It removes hyphens"
+        );
+        assert_eq!(
+            normalize("85-2").unwrap(),
+            "85000002",
+            "It left-fills the substring with zeros until the length is six"
+        );
+        assert!(normalize("n78-89035100444").is_none());
+    }
 }
