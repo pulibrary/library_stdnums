@@ -32,13 +32,11 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
 ///
 /// Returns None if the lccn is not valid
 pub fn normalize(lccn: &str) -> Option<String> {
-    let mut lccn_segments = lccn.split('-');
+    let basic_version = reduce_to_basic(lccn);
+    let mut lccn_segments = basic_version.split('-');
     let first_segment = lccn_segments.next()?;
 
-    let second_segment = match lccn_segments.next() {
-        Some(segment) => segment,
-        None => "",
-    };
+    let second_segment = lccn_segments.next().unwrap_or_default();
     let without_hyphen = format!("{}{:0>6}", first_segment, second_segment);
 
     if valid(&without_hyphen, true) {
@@ -138,6 +136,19 @@ mod tests {
             "85000002",
             "It left-fills the substring with zeros until the length is six"
         );
+        assert_eq!(
+            normalize("n78-890351").unwrap(),
+            "n78890351",
+            "It retains prefixes"
+        );
         assert!(normalize("n78-89035100444").is_none());
+    }
+    #[test]
+    fn it_normalizes_with_suffixes() {
+        assert_eq!(
+            normalize("75-425165//r75").unwrap(),
+            "75425165",
+            "It removes suffixes which are not officially part of the lccn"
+        );
     }
 }
