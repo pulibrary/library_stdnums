@@ -1,6 +1,7 @@
 pub fn valid(lccn: &str, preprocessed: bool) -> bool {
     // lccn = normalize(lccn) unless preprocessed
-    let clean = str::replace(lccn, '-', "");
+    let normalized_version = normalized_version(lccn);
+    let clean = str::replace(&normalized_version, '-', "");
     let suffix = clean.chars().rev().take(8).all(char::is_numeric);
     if !suffix {
         return false;
@@ -32,17 +33,20 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
 ///
 /// Returns None if the lccn is not valid
 pub fn normalize(lccn: &str) -> Option<String> {
-    let basic_version = reduce_to_basic(lccn);
-    let mut lccn_segments = basic_version.split('-');
-    let first_segment = lccn_segments.next()?;
+    let normalized_version = normalized_version(lccn);
 
-    let second_segment = lccn_segments.next().unwrap_or_default();
-    let without_hyphen = format!("{}{:0>6}", first_segment, second_segment);
-
-    if valid(&without_hyphen, true) {
-        return Some(without_hyphen);
+    if valid(&normalized_version, true) {
+        return Some(normalized_version);
     }
     None
+}
+
+fn normalized_version(lccn: &str) -> String {
+    let basic_version = reduce_to_basic(lccn);
+    let mut lccn_segments = basic_version.split('-');
+    let first_segment = lccn_segments.next().unwrap_or_default();
+    let second_segment = lccn_segments.next().unwrap_or_default();
+    format!("{}{:0>6}", first_segment, second_segment)
 }
 
 fn reduce_to_basic(lccn: &str) -> String {
@@ -103,7 +107,18 @@ mod tests {
             false,
             "n78-89c0351 has a letter after the dash"
         );
+        assert_eq!(
+            valid("n  78890351 ", false),
+            true,
+            "LCCNs with extra spaces are still considered valid if preprocessed=false"
+        );
+        assert_eq!(
+            valid("   94014580 /AC/r95", false),
+            true,
+            "LCCNs with a suffix are considered valid if preprocessed=false"
+        );
     }
+
 
     #[test]
     fn it_reduces_to_basic_form() {
