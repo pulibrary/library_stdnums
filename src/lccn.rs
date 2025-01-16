@@ -1,6 +1,7 @@
 pub fn valid(lccn: &str, preprocessed: bool) -> bool {
     // lccn = normalize(lccn) unless preprocessed
     let normalized_version = normalized_version(lccn);
+    println!("normalized version from valid is: {}", normalized_version);
     let clean = str::replace(&normalized_version, '-', "");
     let suffix = clean.chars().rev().take(8).all(char::is_numeric);
     if !suffix {
@@ -34,7 +35,8 @@ pub fn valid(lccn: &str, preprocessed: bool) -> bool {
 /// Returns None if the lccn is not valid
 pub fn normalize(lccn: &str) -> Option<String> {
     let normalized_version = normalized_version(lccn);
-
+    
+    println!("normalized version is: {}", normalized_version);
     if valid(&normalized_version, true) {
         return Some(normalized_version);
     }
@@ -43,6 +45,9 @@ pub fn normalize(lccn: &str) -> Option<String> {
 
 fn normalized_version(lccn: &str) -> String {
     let basic_version = reduce_to_basic(lccn);
+    if !basic_version.contains("-"){
+        return basic_version;
+    }
     let mut lccn_segments = basic_version.split('-');
     let first_segment = lccn_segments.next().unwrap_or_default();
     let second_segment = lccn_segments.next().unwrap_or_default();
