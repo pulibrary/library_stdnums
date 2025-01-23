@@ -44,7 +44,7 @@ pub fn normalize(lccn: &str) -> Option<String> {
 
 fn normalized_version(lccn: &str) -> String {
     let basic_version = reduce_to_basic(lccn);
-    if !basic_version.contains("-"){
+    if !basic_version.contains('-'){
         return basic_version;
     }
     let mut lccn_segments = basic_version.split('-');
