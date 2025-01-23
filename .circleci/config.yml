@@ -1,11 +1,9 @@
 version: 2.1
 
-jobs:
-  build:
-    docker:
-      - image: cimg/rust:1.79.0
-    steps:
-      - checkout
-      - run:
-          name: Run Tests
-          command: "cargo test"
+orbs:
+  rust: circleci/rust@1.6.2
+workflows:
+  test:
+    jobs:
+      - rust/lint-test-build:
+          version: 1.84.0

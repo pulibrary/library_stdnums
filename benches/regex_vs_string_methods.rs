@@ -21,7 +21,7 @@ fn valid_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("valid");
     for i in lccns.iter() {
         group.bench_with_input(BenchmarkId::new("char", i), i, |b, i| {
-            b.iter(|| valid(*i, false))
+            b.iter(|| valid(*i))
         });
     }
     group.finish();

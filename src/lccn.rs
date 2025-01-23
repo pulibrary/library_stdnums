@@ -1,5 +1,4 @@
-pub fn valid(lccn: &str, preprocessed: bool) -> bool {
-    // lccn = normalize(lccn) unless preprocessed
+pub fn valid(lccn: &str) -> bool {
     let normalized_version = normalized_version(lccn);
     println!("normalized version from valid is: {}", normalized_version);
     let clean = str::replace(&normalized_version, '-', "");
@@ -37,7 +36,7 @@ pub fn normalize(lccn: &str) -> Option<String> {
     let normalized_version = normalized_version(lccn);
     
     println!("normalized version is: {}", normalized_version);
-    if valid(&normalized_version, true) {
+    if valid(&normalized_version) {
         return Some(normalized_version);
     }
     None
@@ -45,7 +44,7 @@ pub fn normalize(lccn: &str) -> Option<String> {
 
 fn normalized_version(lccn: &str) -> String {
     let basic_version = reduce_to_basic(lccn);
-    if !basic_version.contains("-"){
+    if !basic_version.contains('-'){
         return basic_version;
     }
     let mut lccn_segments = basic_version.split('-');
@@ -68,57 +67,57 @@ mod tests {
 
     #[test]
     fn it_validates_correctly() {
-        assert_eq!(valid("78-890351", false), true);
-        assert_eq!(valid("n78-890351", false), true);
-        assert_eq!(valid("2001-890351", false), true);
-        assert_eq!(valid("nb78-890351", false), true);
-        assert_eq!(valid("agr78-890351", false), true);
-        assert_eq!(valid("n2001-890351", false), true);
-        assert_eq!(valid("nb2001-890351", false), true);
-        assert_eq!(valid("n78-89035100444", false), false, "Too long");
-        assert_eq!(valid("n78", false), false, "Too short");
+        assert_eq!(valid("78-890351"), true);
+        assert_eq!(valid("n78-890351"), true);
+        assert_eq!(valid("2001-890351"), true);
+        assert_eq!(valid("nb78-890351"), true);
+        assert_eq!(valid("agr78-890351"), true);
+        assert_eq!(valid("n2001-890351"), true);
+        assert_eq!(valid("nb2001-890351"), true);
+        assert_eq!(valid("n78-89035100444"), false, "Too long");
+        assert_eq!(valid("n78"), false, "Too short");
         assert_eq!(
-            valid("378-890351", false),
+            valid("378-890351"),
             false,
             "378-890351 should start with a letter"
         );
         assert_eq!(
-            valid("naa078-890351", false),
+            valid("naa078-890351"),
             false,
             "naa78-890351 should start with two letters"
         );
         assert_eq!(
-            valid("122001-890351", false),
+            valid("122001-890351"),
             false,
             "122001-890351 should start with two letters"
         );
         assert_eq!(
-            valid("n078-890351", false),
+            valid("n078-890351"),
             false,
             "n078-890351 should start with two letters or two digits"
         );
         assert_eq!(
-            valid("na078-890351", false),
+            valid("na078-890351"),
             false,
             "na078-890351 should start with three letters or digits"
         );
         assert_eq!(
-            valid("0an78-890351", false),
+            valid("0an78-890351"),
             false,
             "0an78-890351 should start with three letters or digits"
         );
         assert_eq!(
-            valid("n78-89c0351", false),
+            valid("n78-89c0351"),
             false,
             "n78-89c0351 has a letter after the dash"
         );
         assert_eq!(
-            valid("n  78890351 ", false),
+            valid("n  78890351 "),
             true,
             "LCCNs with extra spaces are still considered valid if preprocessed=false"
         );
         assert_eq!(
-            valid("   94014580 /AC/r95", false),
+            valid("   94014580 /AC/r95"),
             true,
             "LCCNs with a suffix are considered valid if preprocessed=false"
         );
