@@ -1,8 +1,8 @@
 /// ```
 /// use library_stdnums::issn::checkdigit;
-/// assert_eq!(checkdigit("0378-5955"), 5);
+/// assert_eq!(checkdigit("0378-5955"), '5');
 /// ```
-pub fn checkdigit(issn: &str) -> u32 {
+pub fn checkdigit(issn: &str) -> char {
     let clean_string = issn.replace("-", "");
     let first_seven = clean_string.chars().take(7);
     let first_seven_digits = first_seven.filter_map(|x| x.to_digit(10));
@@ -10,7 +10,7 @@ pub fn checkdigit(issn: &str) -> u32 {
 
     let summed: u32 = multiplied.sum();
     let modulus: u32 = summed % 11;
-    return 11 as u32 - modulus;
+    return char::from_digit(11 as u32 - modulus, 11).unwrap();
 }
 
 #[cfg(test)]
@@ -19,6 +19,7 @@ mod tests {
     
     #[test]
     fn it_calculates_the_checkdigit() {
-        assert_eq!(checkdigit("0193-4511"), 1);
+        assert_eq!(checkdigit("0193-4511"), '1');
+        assert_eq!(checkdigit("1043-383X"), 'X');
     }
 }
