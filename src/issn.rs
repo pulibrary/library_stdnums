@@ -10,7 +10,16 @@ pub fn checkdigit(issn: &str) -> char {
 
     let summed: u32 = multiplied.sum();
     let modulus: u32 = summed % 11;
-    return char::from_digit(11 as u32 - modulus, 11).unwrap();
+    from_digit_to_checkdigit(modulus)
+}
+
+fn from_digit_to_checkdigit(num: u32) -> char {
+    let orig_num = char::from_digit(11 as u32 - num, 11).unwrap();
+    if orig_num == 'a' {
+        'X'
+    } else {
+        orig_num
+    }
 }
 
 #[cfg(test)]
