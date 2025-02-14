@@ -12,6 +12,15 @@ pub fn checkdigit(issn: &str) -> char {
     let modulus: u32 = summed % 11;
     from_digit_to_checkdigit(modulus)
 }
+///```
+/// use library_stdnums::issn::valid;
+/// assert_eq!(valid("0378-5955"), true);
+/// assert_eq!(valid("0378-5951"), false);
+/// ```
+pub fn valid(issn: &str) -> bool {
+    let last_digit = issn.chars().rev().next().unwrap();
+    last_digit == checkdigit(issn)
+}
 
 fn from_digit_to_checkdigit(num: u32) -> char {
     let orig_num = char::from_digit(11 as u32 - num, 11).unwrap();
@@ -30,5 +39,10 @@ mod tests {
     fn it_calculates_the_checkdigit() {
         assert_eq!(checkdigit("0193-4511"), '1');
         assert_eq!(checkdigit("1043-383X"), 'X');
+    }
+    #[test]
+    fn it_calculates_validity() {
+        assert_eq!(valid("0193-4511"), true);
+        assert_eq!(valid("0193-451X"), false);
     }
 }
