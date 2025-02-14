@@ -22,6 +22,10 @@ pub fn valid(issn: &str) -> bool {
     last_digit == checkdigit(issn)
 }
 
+pub fn normalize(issn: &str) -> Option<String> {
+
+}
+
 fn from_digit_to_checkdigit(num: u32) -> char {
     let orig_num = char::from_digit(11 as u32 - num, 11).unwrap();
     if orig_num == 'a' {
@@ -44,5 +48,11 @@ mod tests {
     fn it_calculates_validity() {
         assert_eq!(valid("0193-4511"), true);
         assert_eq!(valid("0193-451X"), false);
+        assert_eq!(valid("1043-383X"), true);
+    }
+    #[test]
+    fn it_creates_a_normalized_form() {
+        assert_eq!(normalize("1043-383X").unwrap(), "1043383X")
+        // assert_eq!(normalize("1043-383x"), "1043383X")
     }
 }
