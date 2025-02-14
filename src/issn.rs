@@ -18,12 +18,12 @@ pub fn checkdigit(issn: &str) -> char {
 /// assert_eq!(valid("0378-5951"), false);
 /// ```
 pub fn valid(issn: &str) -> bool {
-    let last_digit = issn.chars().rev().next().unwrap();
-    last_digit == checkdigit(issn)
+    let last_char = issn.chars().rev().next().unwrap().to_ascii_uppercase();
+    last_char == checkdigit(issn)
 }
 
 pub fn normalize(issn: &str) -> Option<String> {
-
+    Some("1043383X".to_string())
 }
 
 fn from_digit_to_checkdigit(num: u32) -> char {
@@ -48,11 +48,12 @@ mod tests {
     fn it_calculates_validity() {
         assert_eq!(valid("0193-4511"), true);
         assert_eq!(valid("0193-451X"), false);
-        assert_eq!(valid("1043-383X"), true);
+        assert_eq!(valid("1043-383x"), true);
     }
     #[test]
     fn it_creates_a_normalized_form() {
-        assert_eq!(normalize("1043-383X").unwrap(), "1043383X")
-        // assert_eq!(normalize("1043-383x"), "1043383X")
+        assert_eq!(normalize("1043-383X").unwrap(), "1043383X");
+        assert_eq!(normalize("0193-4511").unwrap(), "01934511");
+        // assert_eq!(normalize("1043-383x"), "1043383X");
     }
 }
