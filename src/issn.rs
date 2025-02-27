@@ -22,6 +22,19 @@ pub fn valid(issn: &str) -> bool {
     last_digit == checkdigit(issn)
 }
 
+///```
+/// use library_stdnums::issn::normalize;
+/// assert_eq!(normalize("0378-5955").unwrap(), "03785955".to_string());
+/// assert!(normalize("abcdefg").is_none());
+/// ```
+pub fn normalize(issn: &str) -> Option<String> {
+    if valid(issn) {
+        Some(issn.replace("-", ""))
+    } else {
+        None
+    }
+}
+
 fn from_digit_to_checkdigit(num: u32) -> char {
     let orig_num = char::from_digit(11 as u32 - num, 11).unwrap();
     if orig_num == 'a' {
@@ -44,5 +57,10 @@ mod tests {
     fn it_calculates_validity() {
         assert_eq!(valid("0193-4511"), true);
         assert_eq!(valid("0193-451X"), false);
+    }
+
+    #[test]
+    fn it_normalizes() {
+        assert!(normalize("abcdefg").is_none());
     }
 }
