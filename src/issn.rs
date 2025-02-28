@@ -18,7 +18,11 @@ pub fn checkdigit(issn: &str) -> char {
 /// assert_eq!(valid("0378-5951"), false);
 /// ```
 pub fn valid(issn: &str) -> bool {
-    let last_digit = issn.chars().next_back().unwrap();
+    let basic_issn = reduce_to_basics(issn);
+    let last_digit = match basic_issn {
+        None => return false,
+        Some(num) => num.chars().next_back().unwrap()
+    };
     last_digit == checkdigit(issn)
 }
 
@@ -46,11 +50,13 @@ fn from_digit_to_checkdigit(num: u32) -> char {
 }
 
 fn reduce_to_basics(issn: &str) -> Option<String> {
-    let clean_string = issn.replace("-", "");
+    let clean_string = issn
+        .replace("-", "")
+        .replace('x', "X");
     if clean_string.chars()
         .rev()
         .enumerate()
-        .all(|(index, c)| c.is_ascii_digit() || (index == 0 && c == 'X')) {
+        .all(|(index, c)| c.is_ascii_digit() || (index == 0 && c == 'X' )) {
         Some(clean_string)
     } else {
         None
@@ -69,12 +75,14 @@ mod tests {
     #[test]
     fn it_calculates_validity() {
         assert_eq!(valid("0193-4511"), true);
+        assert_eq!(valid("1043-383x"), true);
         assert_eq!(valid("0193-451X"), false);
     }
 
     #[test]
     fn it_normalizes() {
         assert_eq!(normalize("0378-5955").unwrap(), "03785955".to_string());
+        assert_eq!(normalize("1043-383x").unwrap(), "1043383X".to_string());
     }
 
     #[test]
