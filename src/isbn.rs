@@ -19,7 +19,6 @@ fn checkdigit_ten(isbn: &str) -> char {
 }
 
 fn from_digit_to_checkdigit(num: u32) -> char {
-  println!("num is: {}", num);
     let orig_num = char::from_digit((11_u32 - num) % 11, 11).unwrap();
     if orig_num == 'a' {
         'X'
@@ -29,7 +28,14 @@ fn from_digit_to_checkdigit(num: u32) -> char {
 }
 
 fn checkdigit_thirteen(isbn: &str) -> char {
-  'a'
+  let clean_string = isbn.replace("-", "");
+  let first_twelve = clean_string.chars().take(12);
+  let first_twelve_digits = first_twelve.filter_map(|x| x.to_digit(10));
+  let multiplied = first_twelve_digits.enumerate().map(|(index, digit)| digit * (1 + (index as u32 % 2) * 2 ));
+
+  let summed: u32 = multiplied.sum();
+  let modulus = summed % 10;
+  char::from_digit(modulus, 10).unwrap()
 }
 
 #[cfg(test)]
@@ -39,5 +45,7 @@ mod tests {
   #[test]
   fn it_calculates_the_checkdigit() {
     assert_eq!(checkdigit("0139381430").unwrap(), '0');
+    assert_eq!(checkdigit("0-8044-2957-X").unwrap(), 'X');
+    assert_eq!(checkdigit("9781449373320").unwrap(), '0');
   }
 }
