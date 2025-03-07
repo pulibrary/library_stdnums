@@ -41,7 +41,7 @@ pub fn normalize(issn: &str) -> Option<String> {
 }
 
 fn from_digit_to_checkdigit(num: u32) -> char {
-    let orig_num = char::from_digit(11_u32 - num, 11).unwrap();
+    let orig_num = char::from_digit((11_u32 - num) % 11, 11).unwrap();
     if orig_num == 'a' {
         'X'
     } else {
@@ -71,6 +71,7 @@ mod tests {
     fn it_calculates_the_checkdigit() {
         assert_eq!(checkdigit("0193-4511"), '1');
         assert_eq!(checkdigit("1043-383X"), 'X');
+        assert_eq!(checkdigit("1561-4670"), '0');
     }
     #[test]
     fn it_calculates_validity() {
