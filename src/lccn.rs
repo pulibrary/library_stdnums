@@ -1,6 +1,23 @@
+/// Determine if the content of a given LCCN is valid based on
+/// [Library of Congress criteria](https://www.loc.gov/marc/lccn-namespace.html#syntax)
+///
+/// If the LCCN content is valid (but not necessarily the structure), returns true
+///
+/// ```
+/// use library_stdnums::lccn::valid;
+/// assert!(valid("n78-890351"));
+/// assert!(valid("  2001045944"));
+/// ```
+///
+/// Returns false if the LCCN content is not valid
+///
+/// ```
+/// use library_stdnums::lccn::valid;
+/// assert!(!valid("Bad LCCN"));
+/// assert_eq!(valid("Bad LCCN"), false);
+/// ```
 pub fn valid(lccn: &str) -> bool {
     let normalized_version = normalized_version(lccn);
-    println!("normalized version from valid is: {}", normalized_version);
     let clean = str::replace(&normalized_version, '-', "");
     let suffix = clean.chars().rev().take(8).all(char::is_numeric);
     if !suffix {
@@ -28,13 +45,26 @@ pub fn valid(lccn: &str) -> bool {
     }
 }
 
-/// Normalize an LCCN string based on the criteria at
-/// https://www.loc.gov/marc/lccn-namespace.html#syntax
+/// Normalize an LCCN string based on the
+/// [Library of Congress criteria](https://www.loc.gov/marc/lccn-namespace.html#syntax)
 ///
-/// Returns None if the lccn is not valid
+/// If the LCCN content is valid, it will return it in a `Some`
+///
+/// ```
+/// use library_stdnums::lccn::normalize;
+/// assert_eq!(normalize("n78-890351"), Some("n78890351".to_string()));
+/// assert_eq!(normalize("n78-890351").unwrap(), "n78890351");
+/// ```
+///
+/// Returns None if the LCCN content is not valid
+///
+/// ```
+/// use library_stdnums::lccn::normalize;
+/// assert!(normalize("Bad LCCN").is_none());
+/// ```
 pub fn normalize(lccn: &str) -> Option<String> {
     let normalized_version = normalized_version(lccn);
-    
+
     println!("normalized version is: {}", normalized_version);
     if valid(&normalized_version) {
         return Some(normalized_version);
