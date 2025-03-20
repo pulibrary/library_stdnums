@@ -28,10 +28,23 @@ pub fn valid(lccn: &str) -> bool {
     }
 }
 
-/// Normalize an LCCN string based on the criteria at
-/// https://www.loc.gov/marc/lccn-namespace.html#syntax
+/// Normalize an LCCN string based on the
+/// [Library of Congress criteria](https://www.loc.gov/marc/lccn-namespace.html#syntax)
 ///
+/// If the LCCN is valid, it will return it in a `Some`
+/// 
+/// ```
+/// use library_stdnums::lccn::normalize;
+/// assert_eq!(normalize("n78-890351"), Some("n78890351".to_string()));
+/// assert_eq!(normalize("n78-890351").unwrap(), "n78890351");
+/// ```
+/// 
 /// Returns None if the lccn is not valid
+/// 
+/// ```
+/// use library_stdnums::lccn::normalize;
+/// assert!(normalize("Bad LCCN").is_none());
+/// ```
 pub fn normalize(lccn: &str) -> Option<String> {
     let normalized_version = normalized_version(lccn);
     
