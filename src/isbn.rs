@@ -7,6 +7,15 @@ pub fn checkdigit(isbn: &str) -> Option<char> {
   }
 }
 
+pub fn valid(isbn: &str) -> bool {
+  let clean_string = isbn.replace("-", "");
+  match clean_string.len() {
+    10 => checkdigit_ten(&clean_string) == clean_string.chars().rev().next().unwrap(),
+    13 => checkdigit_thirteen(&clean_string) == clean_string.chars().rev().next().unwrap(),
+    _ => false
+  }
+}
+
 fn checkdigit_ten(isbn: &str) -> char {
   let clean_string = isbn.replace("-", "");
   let first_nine = clean_string.chars().take(9);
@@ -47,5 +56,20 @@ mod tests {
     assert_eq!(checkdigit("0139381430").unwrap(), '0');
     assert_eq!(checkdigit("0-8044-2957-X").unwrap(), 'X');
     assert_eq!(checkdigit("9781449373320").unwrap(), '0');
+  }
+
+  #[test]
+  fn it_checks_the_validity() {
+    assert_eq!(valid("0139381430"), true);
+    assert_eq!(valid("9781449373320"), true);
+    assert_eq!(valid("0-8044-2957-X"), true);
+  }
+
+  #[test]
+  fn it_catches_invalid() {
+    assert_eq!(valid("01393814300"), false);
+    assert_eq!(valid("0139381432"), false);
+    assert_eq!(valid("9781449373322"), false);
+    // assert_eq!(valid("A0139381430"), false);
   }
 }
