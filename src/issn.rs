@@ -4,23 +4,21 @@ pub struct ISSN {
     pub identifier: String,
 }
 
-pub fn build_issn(identifier: String) -> ISSN {
-    ISSN {
-        identifier,
+impl ISSN {
+    pub fn new(identifier: impl Into<String>) -> ISSN {
+        ISSN {
+            identifier: identifier.into(),
+        }
     }
 }
 
 impl Valid for ISSN {
     ///```
-    /// use library_stdnums::issn::build_issn;
     /// use library_stdnums::issn::ISSN;
     /// use crate::library_stdnums::traits::Valid;
     /// 
-    /// let valid_issn: ISSN = build_issn(String::from("0378-5955"));
-    /// let invalid_issn: ISSN = build_issn(String::from("0378-5951"));
-    /// 
-    /// assert_eq!(valid_issn.valid(), true);
-    /// assert_eq!(invalid_issn.valid(), false);
+    /// assert_eq!(ISSN::new("0378-5955").valid(), true);
+    /// assert_eq!(ISSN::new("0378-5951").valid(), false);
     /// ```
     fn valid(&self) -> bool {
         let basic_issn = reduce_to_basics(&self.identifier);
@@ -34,19 +32,15 @@ impl Valid for ISSN {
 
 impl Normalize for ISSN {
     ///```
-    /// use library_stdnums::issn::build_issn;
     /// use library_stdnums::issn::ISSN;
     /// use crate::library_stdnums::traits::Normalize;
     /// 
-    /// let valid_issn = build_issn(String::from("0378-5955"));
-    /// let invalid_issn = build_issn(String::from("abcdefg"));
-    /// 
-    /// assert_eq!(valid_issn.normalize().unwrap(), "03785955".to_string());
-    /// assert!(invalid_issn.normalize().is_none());
+    /// assert_eq!(ISSN::new("0378-5955").normalize().unwrap(), "03785955".to_string());
+    /// assert!(ISSN::new("abcdefg").normalize().is_none());
     /// ```
     fn normalize(&self) -> Option<String> {
         let basic_issn = reduce_to_basics(&self.identifier);
-        if build_issn(basic_issn.clone()?).valid() {
+        if ISSN::new(basic_issn.clone()?).valid() {
             Some(basic_issn?)
         } else {
             None
@@ -104,20 +98,20 @@ mod tests {
     }
     #[test]
     fn it_calculates_validity() {
-        assert_eq!(build_issn(String::from("0193-4511")).valid(), true);
-        assert_eq!(build_issn(String::from("1043-383x")).valid(), true);
-        assert_eq!(build_issn(String::from("0193-451X")).valid(), false);
+        assert_eq!(ISSN::new("0193-4511").valid(), true);
+        assert_eq!(ISSN::new("1043-383x").valid(), true);
+        assert_eq!(ISSN::new("0193-451X").valid(), false);
     }
 
     #[test]
     fn it_normalizes() {
-        assert_eq!(build_issn(String::from("0378-5955")).normalize().unwrap(), "03785955".to_string());
-        assert_eq!(build_issn(String::from("1043-383x")).normalize().unwrap(), "1043383X".to_string());
+        assert_eq!(ISSN::new("0378-5955").normalize().unwrap(), "03785955".to_string());
+        assert_eq!(ISSN::new("1043-383x").normalize().unwrap(), "1043383X".to_string());
     }
 
     #[test]
     fn it_returns_none_for_invalid_issns() {
-        assert!(build_issn(String::from("abcdefg")).normalize().is_none());
-        assert!(build_issn(String::from("XXXX-XXXX")).normalize().is_none());
+        assert!(ISSN::new(String::from("abcdefg")).normalize().is_none());
+        assert!(ISSN::new(String::from("XXXX-XXXX")).normalize().is_none());
     }
 }
