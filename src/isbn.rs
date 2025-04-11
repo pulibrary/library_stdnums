@@ -10,13 +10,24 @@ pub fn checkdigit(isbn: &str) -> Option<char> {
 pub fn valid(isbn: &str) -> bool {
   let clean_string = isbn.replace("-", "");
   let scrubbed_string = scrub_alpha_prefix(&clean_string);
-  // let scrubbed_string = clean_string.chars().rev().enumerate().filter_map(|(index, c)| Some(c.is_ascii_digit() || (index == 0 && c == 'X' ))).collect::<String>();
 
   match scrubbed_string.len() {
     10 => checkdigit_ten(&scrubbed_string) == scrubbed_string.chars().rev().next().unwrap(),
     13 => checkdigit_thirteen(&scrubbed_string) == scrubbed_string.chars().rev().next().unwrap(),
     _ => false
   }
+}
+
+pub fn convert_to_13(isbn: &str) -> Option<String> {
+  let clean_string = isbn.replace("-", "");
+  let scrubbed_string = scrub_alpha_prefix(&clean_string);
+  let prepended_string = format!("{}{}", "978", &scrubbed_string[..9]);
+  match scrubbed_string.len() {
+    10 => Some(format!("{}{}", prepended_string, checkdigit_thirteen(&prepended_string)).to_string()),
+    13 => Some(scrubbed_string.to_string()),
+    _ => None
+  }
+  
 }
 
 fn scrub_alpha_prefix(string_to_scrub: &str) -> String {
@@ -66,6 +77,7 @@ mod tests {
     assert_eq!(checkdigit("0139381430").unwrap(), '0');
     assert_eq!(checkdigit("0-8044-2957-X").unwrap(), 'X');
     assert_eq!(checkdigit("9781449373320").unwrap(), '0');
+    // assert_eq!(checkdigit("9780306406152").unwrap(), '7')
   }
 
   #[test]
@@ -91,5 +103,11 @@ mod tests {
     // Need to remove the alphabetic characters from the front of the string without removing terminal X
     assert_eq!(scrub_alpha_prefix("ABC080442957X"), "080442957X");
     assert_eq!(scrub_alpha_prefix("ABC080442957Y"), "080442957");
+  }
+
+  #[test]
+  fn it_converts_isbn_10_to_13() {
+    assert_eq!(convert_to_13("9781449373320").unwrap(), "9781449373320");
+    // assert_eq!(convert_to_13("0-306-40615-2").unwrap(), "9780306406157");
   }
 }
