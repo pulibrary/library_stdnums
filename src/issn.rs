@@ -104,6 +104,11 @@ mod tests {
     }
 
     #[test]
+    fn it_reduces_to_basic() {
+        assert!(reduce_to_basics("019X-4511").is_none());
+    }
+
+    #[test]
     fn it_normalizes() {
         assert_eq!(ISSN::new("0378-5955").normalize().unwrap(), "03785955".to_string());
         assert_eq!(ISSN::new("1043-383x").normalize().unwrap(), "1043383X".to_string());
