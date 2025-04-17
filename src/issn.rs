@@ -98,9 +98,14 @@ mod tests {
     }
     #[test]
     fn it_calculates_validity() {
-        assert_eq!(ISSN::new("0193-4511").valid(), true);
-        assert_eq!(ISSN::new("1043-383x").valid(), true);
-        assert_eq!(ISSN::new("0193-451X").valid(), false);
+        assert!(ISSN::new("0193-4511").valid());
+        assert!(ISSN::new("1043-383x").valid());
+        assert!(!ISSN::new("0193-451X").valid());
+    }
+
+    #[test]
+    fn it_reduces_to_basic() {
+        assert!(reduce_to_basics("019X-4511").is_none());
     }
 
     #[test]
