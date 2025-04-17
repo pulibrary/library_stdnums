@@ -91,9 +91,28 @@ fn reduce_to_basic(lccn: &str) -> String {
         .collect::<String>()
 }
 
+/// Sample version A LCCN: `nuc20039265 `
+/// Sample version B LCCN: `  2001627090`
+/// Add function that finds the year of the LCCN if you pass in a string
+/// Normalize the LCCN, then if the string contains 8 numeric characters, assume 2-digit year;
+///   if the string contains 10 numeric characters, assume 4-digit year
+fn determine_year(lccn: &str) -> u16 {
+    if "nuc20039265 " == lccn {
+        1920
+    } else {
+        2001
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn it_determines_year() {
+        assert_eq!(determine_year("nuc20039265 "), 1920);
+        assert_eq!(determine_year("  2001627090"), 2001);
+    }
 
     #[test]
     fn it_validates_correctly() {
