@@ -19,6 +19,7 @@ pub fn valid(isbn: &str) -> bool {
 }
 
 pub fn convert_to_13(isbn: &str) -> Option<String> {
+  if !valid(isbn) {return None};
   let clean_string = isbn.replace("-", "");
   let scrubbed_string = scrub_alpha_prefix(&clean_string);
   let prepended_string = format!("{}{}", "978", &scrubbed_string[..9]);
@@ -31,6 +32,7 @@ pub fn convert_to_13(isbn: &str) -> Option<String> {
 }
 
 pub fn convert_to_10(isbn: &str) -> Option<String> {
+  if !valid(isbn) {return None};
   let clean_string = isbn.replace("-", "");
   let scrubbed_string = scrub_alpha_prefix(&clean_string);
   if scrubbed_string.starts_with("979") {
@@ -41,6 +43,10 @@ pub fn convert_to_10(isbn: &str) -> Option<String> {
     13 => Some(format!("{}{}", &scrubbed_string[3..12], checkdigit_ten(&scrubbed_string[3..]))),
     _ => None,
   }
+}
+
+pub fn normalize(isbn: &str) -> Option<String> {
+  convert_to_13(isbn)
 }
 
 fn scrub_alpha_prefix(string_to_scrub: &str) -> String {
@@ -131,5 +137,13 @@ mod tests {
     assert_eq!(convert_to_10("9798531132178"), None);
     assert_eq!(convert_to_10("1"), None);
     assert_eq!(convert_to_10("9780306406157978030640615797803064061579780306406157"), None);
+  }
+
+  #[test]
+  fn it_normalizes() {
+    assert_eq!(normalize("0-306-40615-2").unwrap(), "9780306406157");
+    assert_eq!(normalize("0-306-40615-X"), None);
+    assert_eq!(normalize("ISBN: 978-0-306-40615-7").unwrap(), "9780306406157");
+    assert_eq!(normalize("ISBN: 978-0-306-40615-3"), None);
   }
 }
