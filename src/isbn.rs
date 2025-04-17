@@ -12,8 +12,8 @@ pub fn valid(isbn: &str) -> bool {
   let scrubbed_string = scrub_alpha_prefix(&clean_string);
 
   match scrubbed_string.len() {
-    10 => checkdigit_ten(&scrubbed_string) == scrubbed_string.chars().rev().next().unwrap(),
-    13 => checkdigit_thirteen(&scrubbed_string) == scrubbed_string.chars().rev().next().unwrap(),
+    10 => checkdigit_ten(&scrubbed_string) == scrubbed_string.chars().next_back().unwrap(),
+    13 => checkdigit_thirteen(&scrubbed_string) == scrubbed_string.chars().next_back().unwrap(),
     _ => false
   }
 }
@@ -96,17 +96,17 @@ mod tests {
 
   #[test]
   fn it_checks_the_validity() {
-    assert_eq!(valid("0139381430"), true);
-    assert_eq!(valid("9781449373320"), true);
-    assert_eq!(valid("0-8044-2957-X"), true);
-    assert_eq!(valid("ABC0139381430"), true);
+    assert!(valid("0139381430"));
+    assert!(valid("9781449373320"));
+    assert!(valid("0-8044-2957-X"));
+    assert!(valid("ABC0139381430"));
   }
 
   #[test]
   fn it_catches_invalid() {
-    assert_eq!(valid("01393814300"), false);
-    assert_eq!(valid("0139381432"), false);
-    assert_eq!(valid("9781449373322"), false);
+    assert!(!valid("01393814300"));
+    assert!(!valid("0139381432"));
+    assert!(!valid("9781449373322"));
   }
 
   #[test]

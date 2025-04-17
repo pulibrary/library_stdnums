@@ -97,58 +97,49 @@ mod tests {
 
     #[test]
     fn it_validates_correctly() {
-        assert_eq!(valid("78-890351"), true);
-        assert_eq!(valid("n78-890351"), true);
-        assert_eq!(valid("2001-890351"), true);
-        assert_eq!(valid("nb78-890351"), true);
-        assert_eq!(valid("agr78-890351"), true);
-        assert_eq!(valid("n2001-890351"), true);
-        assert_eq!(valid("nb2001-890351"), true);
-        assert_eq!(valid("n78-89035100444"), false, "Too long");
-        assert_eq!(valid("n78"), false, "Too short");
-        assert_eq!(
-            valid("378-890351"),
-            false,
+        assert!(valid("78-890351"));
+        assert!(valid("n78-890351"));
+        assert!(valid("2001-890351"));
+        assert!(valid("nb78-890351"));
+        assert!(valid("agr78-890351"));
+        assert!(valid("n2001-890351"));
+        assert!(valid("nb2001-890351"));
+        assert!(!valid("n78-89035100444"), "Too long");
+        assert!(!valid("n78"), "Too short");
+        assert!(
+            !valid("378-890351"),
             "378-890351 should start with a letter"
         );
-        assert_eq!(
-            valid("naa078-890351"),
-            false,
+        assert!(
+            !valid("naa078-890351"),
             "naa78-890351 should start with two letters"
         );
-        assert_eq!(
-            valid("122001-890351"),
-            false,
+        assert!(
+            !valid("122001-890351"),
             "122001-890351 should start with two letters"
         );
-        assert_eq!(
-            valid("n078-890351"),
-            false,
+        assert!(
+            !valid("n078-890351"),
             "n078-890351 should start with two letters or two digits"
         );
-        assert_eq!(
-            valid("na078-890351"),
-            false,
+        assert!(
+            !valid("na078-890351"),
             "na078-890351 should start with three letters or digits"
         );
-        assert_eq!(
-            valid("0an78-890351"),
-            false,
+        assert!(
+            !valid("0an78-890351"),
             "0an78-890351 should start with three letters or digits"
         );
-        assert_eq!(
-            valid("n78-89c0351"),
-            false,
+        assert!(
+            !valid("n78-89c0351"),
             "n78-89c0351 has a letter after the dash"
         );
-        assert_eq!(
+        assert!(
             valid("n  78890351 "),
-            true,
             "LCCNs with extra spaces are still considered valid if preprocessed=false"
         );
-        assert_eq!(
+        assert!(
             valid("   94014580 /AC/r95"),
-            true,
             "LCCNs with a suffix are considered valid if preprocessed=false"
         );
     }
