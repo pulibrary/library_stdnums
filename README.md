@@ -7,3 +7,13 @@ This is a Rust implementation of [Bill Dueber's library_stdnums ruby gem](https:
 1. `git clone git@github.com:pulibrary/library_stdnums.git`
 1. `cd library_stdnums`
 1. Run `cargo test`
+
+# Mutation testing
+
+This crate uses [cargo-mutants](https://mutants.rs) for mutation testing in CI.
+To run it locally:
+
+```
+cargo install --locked cargo-mutants
+cargo mutants
+```

@@ -7,3 +7,12 @@ workflows:
     jobs:
       - rust/lint-test-build:
           version: 1.84.0
+      - Mutation tests
+jobs:
+  Mutation tests:
+    docker:
+      - image: cimg/rust:1.84.0
+    steps:
+      - checkout
+      - run: cargo install --locked cargo-mutants
+      - run: cargo mutants --in-place
