@@ -65,7 +65,6 @@ pub fn valid(lccn: &str) -> bool {
 pub fn normalize(lccn: &str) -> Option<String> {
     let normalized_version = normalized_version(lccn);
 
-    println!("normalized version is: {}", normalized_version);
     if valid(&normalized_version) {
         return Some(normalized_version);
     }
