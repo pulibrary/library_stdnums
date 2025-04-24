@@ -1,6 +1,6 @@
 pub fn checkdigit(isbn: &str) -> Option<char> {
-  let clean_string = isbn.replace("-", "");
-  match clean_string.len() {
+  let basic_string = reduce_to_basic(isbn);
+  match basic_string.len() {
       10 => Some(checkdigit_ten(isbn)),
       13 => Some(checkdigit_thirteen(isbn)),
       _ => None
@@ -8,24 +8,21 @@ pub fn checkdigit(isbn: &str) -> Option<char> {
 }
 
 pub fn valid(isbn: &str) -> bool {
-  let clean_string = isbn.replace("-", "");
-  let scrubbed_string = scrub_alpha_prefix(&clean_string);
-
-  match scrubbed_string.len() {
-    10 => checkdigit_ten(&scrubbed_string) == scrubbed_string.chars().next_back().unwrap(),
-    13 => checkdigit_thirteen(&scrubbed_string) == scrubbed_string.chars().next_back().unwrap(),
+  let basic_string = reduce_to_basic(isbn);
+  match basic_string.len() {
+    10 => checkdigit_ten(&basic_string) == basic_string.chars().next_back().unwrap(),
+    13 => checkdigit_thirteen(&basic_string) == basic_string.chars().next_back().unwrap(),
     _ => false
   }
 }
 
 pub fn convert_to_13(isbn: &str) -> Option<String> {
   if !valid(isbn) {return None};
-  let clean_string = isbn.replace("-", "");
-  let scrubbed_string = scrub_alpha_prefix(&clean_string);
-  let prepended_string = format!("{}{}", "978", &scrubbed_string[..9]);
-  match scrubbed_string.len() {
+  let basic_string = reduce_to_basic(isbn);
+  let prepended_string = format!("{}{}", "978", &basic_string[..9]);
+  match basic_string.len() {
     10 => Some(format!("{}{}", prepended_string, checkdigit_thirteen(&prepended_string)).to_string()),
-    13 => Some(scrubbed_string.to_string()),
+    13 => Some(basic_string.to_string()),
     _ => None,
   }
   
@@ -33,20 +30,24 @@ pub fn convert_to_13(isbn: &str) -> Option<String> {
 
 pub fn convert_to_10(isbn: &str) -> Option<String> {
   if !valid(isbn) {return None};
-  let clean_string = isbn.replace("-", "");
-  let scrubbed_string = scrub_alpha_prefix(&clean_string);
-  if scrubbed_string.starts_with("979") {
+  let basic_string = reduce_to_basic(isbn);
+  if basic_string.starts_with("979") {
     return None;
   }
-  match scrubbed_string.len() {
-    10 => Some(scrubbed_string),
-    13 => Some(format!("{}{}", &scrubbed_string[3..12], checkdigit_ten(&scrubbed_string[3..]))),
+  match basic_string.len() {
+    10 => Some(basic_string),
+    13 => Some(format!("{}{}", &basic_string[3..12], checkdigit_ten(&basic_string[3..]))),
     _ => None,
   }
 }
 
 pub fn normalize(isbn: &str) -> Option<String> {
   convert_to_13(isbn)
+}
+
+fn reduce_to_basic(isbn: &str) -> String {
+  let clean_string = isbn.replace("-", "");
+  scrub_alpha_prefix(&clean_string)
 }
 
 fn scrub_alpha_prefix(string_to_scrub: &str) -> String {
@@ -57,8 +58,8 @@ fn scrub_alpha_prefix(string_to_scrub: &str) -> String {
 }
 
 fn checkdigit_ten(isbn: &str) -> char {
-  let clean_string = isbn.replace("-", "");
-  let first_nine = clean_string.chars().take(9);
+  let basic_string = reduce_to_basic(isbn);
+  let first_nine = basic_string.chars().take(9);
   let first_nine_digits = first_nine.filter_map(|x| x.to_digit(10));
   let multiplied = first_nine_digits.enumerate().map(|(index, digit)| digit * (10 - index as u32));
 
@@ -68,8 +69,8 @@ fn checkdigit_ten(isbn: &str) -> char {
 }
 
 fn checkdigit_thirteen(isbn: &str) -> char {
-  let clean_string = isbn.replace("-", "");
-  let first_twelve = clean_string.chars().take(12);
+  let basic_string = reduce_to_basic(isbn);
+  let first_twelve = basic_string.chars().take(12);
   let first_twelve_digits = first_twelve.filter_map(|x| x.to_digit(10));
   let multiplied = first_twelve_digits.enumerate().map(|(index, digit)| digit * (1 + (index as u32 % 2) * 2 ));
 
@@ -113,6 +114,12 @@ mod tests {
     assert!(!valid("01393814300"));
     assert!(!valid("0139381432"));
     assert!(!valid("9781449373322"));
+  }
+
+  #[test]
+  fn it_reduces_to_basic() {
+    assert_eq!(reduce_to_basic("0-8044-2957-X"), "080442957X");
+    assert_eq!(reduce_to_basic("ABC0139381430"), "0139381430");
   }
 
   #[test]
