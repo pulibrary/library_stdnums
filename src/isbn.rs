@@ -1,3 +1,27 @@
+use crate::traits::Valid;
+
+pub struct ISBN {
+  pub identifier: String,
+}
+
+impl ISBN {
+  pub fn new(identifier: impl Into<String>) -> ISBN {
+    ISBN {identifier: identifier.into()}
+  }
+}
+
+impl Valid for ISBN {
+    fn valid(&self) -> bool {
+      let basic_string = reduce_to_basic(&self.identifier);
+      match basic_string.len() {
+        10 => checkdigit_ten(&basic_string) == basic_string.chars().next_back().unwrap(),
+        13 => checkdigit_thirteen(&basic_string) == basic_string.chars().next_back().unwrap(),
+        _ => false
+      }
+    }
+}
+
+
 /// Calculate the checkdigit for a given ISBN
 ///
 /// Returns an Option<char> if the ISBN is a valid length
@@ -27,15 +51,17 @@ pub fn checkdigit(isbn: &str) -> Option<char> {
 /// Returns true if the ISBN is valid
 /// 
 /// ```
-/// use library_stdnums::isbn::valid;
-/// assert!(valid("0139381430"));
+/// use library_stdnums::isbn::ISBN;
+/// use library_stdnums::traits::Valid;
+/// assert!(ISBN::new("0139381430").valid());
 /// ```
 ///
 /// Returns false if the ISBN is invalid
 ///
 /// ```
-/// use library_stdnums::isbn::valid;
-/// assert_eq!(valid("0139381432"), false);
+/// use library_stdnums::isbn::ISBN;
+/// use library_stdnums::traits::Valid;
+/// assert_eq!(ISBN::new("0139381432").valid(), false);
 /// ```
 pub fn valid(isbn: &str) -> bool {
   let basic_string = reduce_to_basic(isbn);
@@ -184,6 +210,12 @@ mod tests {
   use super::*;
 
   #[test]
+  fn it_can_create_an_isbn() {
+    let isbn = ISBN::new("0139381430");
+    assert_eq!(isbn.identifier, "0139381430");
+  }
+
+  #[test]
   fn it_calculates_the_checkdigit() {
     assert_eq!(checkdigit("0139381430").unwrap(), '0');
     assert_eq!(checkdigit("0-8044-2957-X").unwrap(), 'X');
@@ -193,17 +225,17 @@ mod tests {
 
   #[test]
   fn it_checks_the_validity() {
-    assert!(valid("0139381430"));
-    assert!(valid("9781449373320"));
-    assert!(valid("0-8044-2957-X"));
-    assert!(valid("ABC0139381430"));
+    assert!(ISBN::new("0139381430").valid());
+    assert!(ISBN::new("9781449373320").valid());
+    assert!(ISBN::new("0-8044-2957-X").valid());
+    assert!(ISBN::new("ABC0139381430").valid());
   }
 
   #[test]
   fn it_catches_invalid() {
-    assert!(!valid("01393814300"));
-    assert!(!valid("0139381432"));
-    assert!(!valid("9781449373322"));
+    assert!(!ISBN::new("01393814300").valid());
+    assert!(!ISBN::new("0139381432").valid());
+    assert!(!ISBN::new("9781449373322").valid());
   }
 
   #[test]

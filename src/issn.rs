@@ -15,7 +15,7 @@ impl ISSN {
 impl Valid for ISSN {
     ///```
     /// use library_stdnums::issn::ISSN;
-    /// use crate::library_stdnums::traits::Valid;
+    /// use library_stdnums::traits::Valid;
     /// 
     /// assert_eq!(ISSN::new("0378-5955").valid(), true);
     /// assert_eq!(ISSN::new("0378-5951").valid(), false);
@@ -33,7 +33,7 @@ impl Valid for ISSN {
 impl Normalize for ISSN {
     ///```
     /// use library_stdnums::issn::ISSN;
-    /// use crate::library_stdnums::traits::Normalize;
+    /// use library_stdnums::traits::Normalize;
     /// 
     /// assert_eq!(ISSN::new("0378-5955").normalize().unwrap(), "03785955".to_string());
     /// assert!(ISSN::new("abcdefg").normalize().is_none());
