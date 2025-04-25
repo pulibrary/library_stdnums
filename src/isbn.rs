@@ -124,7 +124,7 @@ impl Valid for ISBN {
   /// assert_eq!(ISBN::new("0139381432").valid(), false);
   /// ```
   fn valid(&self) -> bool {
-    let basic_string = reduce_to_basic(&self.identifier);
+    let basic_string = self.reduce_to_basic();
     match basic_string.len() {
       10 => checkdigit_ten(&basic_string) == basic_string.chars().next_back().unwrap(),
       13 => checkdigit_thirteen(&basic_string) == basic_string.chars().next_back().unwrap(),
@@ -157,11 +157,6 @@ impl Normalize for ISBN {
   }
 }
 
-fn reduce_to_basic(isbn: &str) -> String {
-  let clean_string = isbn.replace("-", "");
-  scrub_alpha_prefix(&clean_string)
-}
-
 fn scrub_alpha_prefix(string_to_scrub: &str) -> String {
   string_to_scrub.chars()
     .skip_while(|c| !c.is_ascii_digit())
@@ -170,7 +165,7 @@ fn scrub_alpha_prefix(string_to_scrub: &str) -> String {
 }
 
 fn checkdigit_ten(isbn: &str) -> char {
-  let basic_string = reduce_to_basic(isbn);
+  let basic_string = ISBN::new(isbn).reduce_to_basic();
   let first_nine = basic_string.chars().take(9);
   let first_nine_digits = first_nine.filter_map(|x| x.to_digit(10));
   let multiplied = first_nine_digits.enumerate().map(|(index, digit)| digit * (10 - index as u32));
@@ -181,7 +176,7 @@ fn checkdigit_ten(isbn: &str) -> char {
 }
 
 fn checkdigit_thirteen(isbn: &str) -> char {
-  let basic_string = reduce_to_basic(isbn);
+  let basic_string = ISBN::new(isbn).reduce_to_basic();
   let first_twelve = basic_string.chars().take(12);
   let first_twelve_digits = first_twelve.filter_map(|x| x.to_digit(10));
   let multiplied = first_twelve_digits.enumerate().map(|(index, digit)| digit * (1 + (index as u32 % 2) * 2 ));
