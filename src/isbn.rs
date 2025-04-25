@@ -24,12 +24,84 @@ impl ISBN {
   /// assert_eq!(ISBN::new("Bad ISBN").checkdigit(), None);
   /// ```
   pub fn checkdigit(&self) -> Option<char> {
-    let basic_string = reduce_to_basic(&self.identifier);
+    let basic_string = self.reduce_to_basic();
     match basic_string.len() {
         10 => Some(checkdigit_ten(&self.identifier)),
         13 => Some(checkdigit_thirteen(&self.identifier)),
         _ => None
     }
+  }
+  /// Converts an ISBN to its corresponding ISBN13
+  ///
+  /// Returns an Option<String> if the ISBN is valid
+  /// 
+  /// ```
+  /// use library_stdnums::isbn::ISBN;
+  /// assert_eq!(ISBN::new("0-306-40615-2").convert_to_13().unwrap(), "9780306406157");
+  /// ```
+  /// 
+  /// /// Returns an Option<String> if the ISBN is valid and already an ISBN13
+  /// 
+  /// ```
+  /// use library_stdnums::isbn::ISBN;
+  /// assert_eq!(ISBN::new("978-1-449-37332-0").convert_to_13().unwrap(), "9781449373320");
+  /// ```
+  ///
+  /// Returns None if the ISBN is invalid
+  ///
+  /// ```
+  /// use library_stdnums::isbn::ISBN;
+  /// assert_eq!(ISBN::new("013938143").convert_to_13(), None);
+  /// ```
+  pub fn convert_to_13(&self) -> Option<String> {
+    if !&self.valid() {return None};
+    let basic_string = &self.reduce_to_basic();
+    let prepended_string = format!("{}{}", "978", &basic_string[..9]);
+    match basic_string.len() {
+      10 => Some(format!("{}{}", prepended_string, checkdigit_thirteen(&prepended_string)).to_string()),
+      13 => Some(basic_string.to_string()),
+      _ => None,
+    }
+  }
+
+  /// Converts an ISBN to its corresponding ISBN10
+  ///
+  /// Returns an Option<String> if the ISBN is valid
+  /// 
+  /// ```
+  /// use library_stdnums::isbn::ISBN;
+  /// assert_eq!(ISBN::new("9780306406157").convert_to_10().unwrap(), "0306406152");
+  /// ```
+  ///
+  /// Returns None if the ISBN is invalid
+  ///
+  /// ```
+  /// use library_stdnums::isbn::ISBN;
+  /// assert_eq!(ISBN::new("013938143").convert_to_10(), None);
+  /// ```
+  /// 
+  /// Returns None if an ISBN13 begins with '979'
+  /// 
+  /// ```
+  /// use library_stdnums::isbn::ISBN;
+  /// assert_eq!(ISBN::new("9798531132178").convert_to_10(), None);
+  /// ```
+  pub fn convert_to_10(&self) -> Option<String> {
+    if !self.valid() {return None};
+    let basic_string = &self.reduce_to_basic();
+    if basic_string.starts_with("979") {
+      return None;
+    }
+    match basic_string.len() {
+      10 => Some(basic_string.to_string()),
+      13 => Some(format!("{}{}", &basic_string[3..12], checkdigit_ten(&basic_string[3..]))),
+      _ => None,
+    }
+  }
+
+  fn reduce_to_basic(&self) -> String {
+    let clean_string = &self.identifier.replace("-", "");
+    scrub_alpha_prefix(clean_string)
   }
 }
 
@@ -81,76 +153,7 @@ impl Normalize for ISBN {
   /// assert_eq!(ISBN::new("013938143").normalize(), None);
   /// ```
   fn normalize(&self) -> Option<String> {
-    convert_to_13(&self.identifier)
-  }
-}
-
-/// Converts an ISBN to its corresponding ISBN13
-///
-/// Returns an Option<String> if the ISBN is valid
-/// 
-/// ```
-/// use library_stdnums::isbn::convert_to_13;
-/// assert_eq!(convert_to_13("0-306-40615-2").unwrap(), "9780306406157");
-/// ```
-/// 
-/// /// Returns an Option<String> if the ISBN is valid and already an ISBN13
-/// 
-/// ```
-/// use library_stdnums::isbn::convert_to_13;
-/// assert_eq!(convert_to_13("978-1-449-37332-0").unwrap(), "9781449373320");
-/// ```
-///
-/// Returns None if the ISBN is invalid
-///
-/// ```
-/// use library_stdnums::isbn::convert_to_13;
-/// assert_eq!(convert_to_13("013938143"), None);
-/// ```
-pub fn convert_to_13(isbn: &str) -> Option<String> {
-  if !ISBN::new(isbn).valid() {return None};
-  let basic_string = reduce_to_basic(isbn);
-  let prepended_string = format!("{}{}", "978", &basic_string[..9]);
-  match basic_string.len() {
-    10 => Some(format!("{}{}", prepended_string, checkdigit_thirteen(&prepended_string)).to_string()),
-    13 => Some(basic_string.to_string()),
-    _ => None,
-  }
-  
-}
-
-/// Converts an ISBN to its corresponding ISBN10
-///
-/// Returns an Option<String> if the ISBN is valid
-/// 
-/// ```
-/// use library_stdnums::isbn::convert_to_10;
-/// assert_eq!(convert_to_10("9780306406157").unwrap(), "0306406152");
-/// ```
-///
-/// Returns None if the ISBN is invalid
-///
-/// ```
-/// use library_stdnums::isbn::convert_to_10;
-/// assert_eq!(convert_to_10("013938143"), None);
-/// ```
-/// 
-/// Returns None if an ISBN13 begins with '979'
-/// 
-/// ```
-/// use library_stdnums::isbn::convert_to_10;
-/// assert_eq!(convert_to_10("9798531132178"), None);
-/// ```
-pub fn convert_to_10(isbn: &str) -> Option<String> {
-  if !ISBN::new(isbn).valid() {return None};
-  let basic_string = reduce_to_basic(isbn);
-  if basic_string.starts_with("979") {
-    return None;
-  }
-  match basic_string.len() {
-    10 => Some(basic_string),
-    13 => Some(format!("{}{}", &basic_string[3..12], checkdigit_ten(&basic_string[3..]))),
-    _ => None,
+    self.convert_to_13()
   }
 }
 
@@ -233,8 +236,8 @@ mod tests {
 
   #[test]
   fn it_reduces_to_basic() {
-    assert_eq!(reduce_to_basic("0-8044-2957-X"), "080442957X");
-    assert_eq!(reduce_to_basic("ABC0139381430"), "0139381430");
+    assert_eq!(ISBN::new("0-8044-2957-X").reduce_to_basic(), "080442957X");
+    assert_eq!(ISBN::new("ABC0139381430").reduce_to_basic(), "0139381430");
   }
 
   #[test]
@@ -248,17 +251,17 @@ mod tests {
 
   #[test]
   fn it_converts_isbn_10_to_13() {
-    assert_eq!(convert_to_13("9781449373320").unwrap(), "9781449373320");
-    assert_eq!(convert_to_13("0-306-40615-2").unwrap(), "9780306406157");
+    assert_eq!(ISBN::new("9781449373320").convert_to_13().unwrap(), "9781449373320");
+    assert_eq!(ISBN::new("0-306-40615-2").convert_to_13().unwrap(), "9780306406157");
   }
 
   #[test]
   fn it_converts_isbn_13_to_10() {
-    assert_eq!(convert_to_10("9780306406157").unwrap(), "0306406152");
-    assert_eq!(convert_to_10("0306406152").unwrap(), "0306406152");
-    assert_eq!(convert_to_10("9798531132178"), None);
-    assert_eq!(convert_to_10("1"), None);
-    assert_eq!(convert_to_10("9780306406157978030640615797803064061579780306406157"), None);
+    assert_eq!(ISBN::new("9780306406157").convert_to_10().unwrap(), "0306406152");
+    assert_eq!(ISBN::new("0306406152").convert_to_10().unwrap(), "0306406152");
+    assert_eq!(ISBN::new("9798531132178").convert_to_10(), None);
+    assert_eq!(ISBN::new("1").convert_to_10(), None);
+    assert_eq!(ISBN::new("9780306406157978030640615797803064061579780306406157").convert_to_10(), None);
   }
 
   #[test]
