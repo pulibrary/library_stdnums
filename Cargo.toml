@@ -2,6 +2,11 @@
 categories = ["value-formatting"]
 description = "A library for processing standard bibliographic numbers in Rust"
 edition = "2021"
+exclude = [
+    ".circleci/", 
+    "benches/",
+    ".gitignore"
+    ]
 homepage = "https://github.com/pulibrary/library_stdnums"
 keywords = ["issn", "isbn", "lccn"]
 license = "MIT"
