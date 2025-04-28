@@ -1,7 +1,14 @@
 [package]
-name = "library_stdnums"
-version = "0.1.0"
+categories = ["value-formatting"]
+description = "A library for processing standard bibliographic numbers in Rust"
 edition = "2021"
+homepage = "https://github.com/pulibrary/library_stdnums"
+keywords = ["issn", "isbn", "lccn"]
+license = "MIT"
+name = "library_stdnums"
+readme = "README.md"
+repository = "https://github.com/pulibrary/library_stdnums"
+version = "0.1.0"
 
 [dependencies]
 regex = "1.11.1"
