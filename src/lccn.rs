@@ -16,8 +16,8 @@ impl LCCN {
 impl Valid for LCCN {
     ///
     /// ```
-    /// use library_stdnums::lccn::LCCN;
-    /// use library_stdnums::traits::Valid;
+    /// use library_stdnums::LCCN;
+    /// use library_stdnums::Valid;
     /// assert!(LCCN::new("n78-890351").valid());
     /// assert!(LCCN::new("  2001045944").valid());
     /// ```
@@ -25,8 +25,8 @@ impl Valid for LCCN {
     /// Returns false if the LCCN content is not valid
     ///
     /// ```
-    /// use library_stdnums::lccn::LCCN;
-    /// use library_stdnums::traits::Valid;
+    /// use library_stdnums::LCCN;
+    /// use library_stdnums::Valid;
     /// assert!(!LCCN::new("Bad LCCN").valid());
     /// assert_eq!(LCCN::new("Bad LCCN").valid(), false);
     /// ```
@@ -67,8 +67,8 @@ impl Normalize for LCCN {
     /// If the LCCN content is valid, it will return it in a `Some`
     ///
     /// ```
-    /// use library_stdnums::lccn::LCCN;
-    /// use library_stdnums::traits::Normalize;
+    /// use library_stdnums::LCCN;
+    /// use library_stdnums::Normalize;
     /// assert_eq!(LCCN::new("n78-890351").normalize(), Some("n78890351".to_string()));
     /// assert_eq!(LCCN::new("n78-890351").normalize().unwrap(), "n78890351");
     /// ```
@@ -76,8 +76,8 @@ impl Normalize for LCCN {
     /// Returns None if the LCCN content is not valid
     ///
     /// ```
-    /// use library_stdnums::lccn::LCCN;
-    /// use library_stdnums::traits::Normalize;
+    /// use library_stdnums::LCCN;
+    /// use library_stdnums::Normalize;
     /// assert!(LCCN::new("Bad LCCN").normalize().is_none());
     /// ```
     fn normalize(&self) -> Option<String> {

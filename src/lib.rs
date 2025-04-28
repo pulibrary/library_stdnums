@@ -1,4 +1,10 @@
-pub mod isbn;
-pub mod issn;
-pub mod lccn;
-pub mod traits;
+mod isbn;
+mod issn;
+mod lccn;
+mod traits;
+
+pub use isbn::ISBN;
+pub use issn::ISSN;
+pub use lccn::LCCN;
+pub use traits::Normalize;
+pub use traits::Valid;

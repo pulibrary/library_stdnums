@@ -11,7 +11,7 @@ impl ISSN {
         }
     }
     /// ```
-    /// use library_stdnums::issn::ISSN;
+    /// use library_stdnums::ISSN;
     /// assert_eq!(ISSN::new("0378-5955").checkdigit(), '5');
     /// ```
     pub fn checkdigit(&self) -> char {
@@ -28,8 +28,8 @@ impl ISSN {
 
 impl Valid for ISSN {
     ///```
-    /// use library_stdnums::issn::ISSN;
-    /// use library_stdnums::traits::Valid;
+    /// use library_stdnums::ISSN;
+    /// use library_stdnums::Valid;
     /// 
     /// assert_eq!(ISSN::new("0378-5955").valid(), true);
     /// assert_eq!(ISSN::new("0378-5951").valid(), false);
@@ -46,8 +46,8 @@ impl Valid for ISSN {
 
 impl Normalize for ISSN {
     ///```
-    /// use library_stdnums::issn::ISSN;
-    /// use library_stdnums::traits::Normalize;
+    /// use library_stdnums::ISSN;
+    /// use library_stdnums::Normalize;
     /// 
     /// assert_eq!(ISSN::new("0378-5955").normalize().unwrap(), "03785955".to_string());
     /// assert!(ISSN::new("abcdefg").normalize().is_none());
