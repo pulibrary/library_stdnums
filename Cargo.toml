@@ -15,9 +15,6 @@ readme = "README.md"
 repository = "https://github.com/pulibrary/library_stdnums"
 version = "0.1.0"
 
-[dependencies]
-regex = "1.11.1"
-
 [dev-dependencies]
 criterion = "0.5.1"
 
