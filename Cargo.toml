@@ -17,7 +17,7 @@ regex = "1.11.1"
 criterion = "0.5.1"
 
 [[bench]]
-name = "regex_vs_string_methods"
+name = "lccn_bench"
 harness = false
 
 [lib]
