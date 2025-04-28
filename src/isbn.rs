@@ -13,14 +13,14 @@ impl ISBN {
   /// Returns an Option<char> if the ISBN is a valid length
   ///
   /// ```
-  /// use library_stdnums::isbn::ISBN;
+  /// use library_stdnums::ISBN;
   /// assert_eq!(ISBN::new("0139381430").checkdigit().unwrap(), '0');
   /// ```
   ///
   /// Returns None if the ISBN content is not valid length
   ///
   /// ```
-  /// use library_stdnums::isbn::ISBN;
+  /// use library_stdnums::ISBN;
   /// assert_eq!(ISBN::new("Bad ISBN").checkdigit(), None);
   /// ```
   pub fn checkdigit(&self) -> Option<char> {
@@ -36,21 +36,21 @@ impl ISBN {
   /// Returns an Option<String> if the ISBN is valid
   /// 
   /// ```
-  /// use library_stdnums::isbn::ISBN;
+  /// use library_stdnums::ISBN;
   /// assert_eq!(ISBN::new("0-306-40615-2").convert_to_13().unwrap(), "9780306406157");
   /// ```
   /// 
   /// /// Returns an Option<String> if the ISBN is valid and already an ISBN13
   /// 
   /// ```
-  /// use library_stdnums::isbn::ISBN;
+  /// use library_stdnums::ISBN;
   /// assert_eq!(ISBN::new("978-1-449-37332-0").convert_to_13().unwrap(), "9781449373320");
   /// ```
   ///
   /// Returns None if the ISBN is invalid
   ///
   /// ```
-  /// use library_stdnums::isbn::ISBN;
+  /// use library_stdnums::ISBN;
   /// assert_eq!(ISBN::new("013938143").convert_to_13(), None);
   /// ```
   pub fn convert_to_13(&self) -> Option<String> {
@@ -69,21 +69,21 @@ impl ISBN {
   /// Returns an Option<String> if the ISBN is valid
   /// 
   /// ```
-  /// use library_stdnums::isbn::ISBN;
+  /// use library_stdnums::ISBN;
   /// assert_eq!(ISBN::new("9780306406157").convert_to_10().unwrap(), "0306406152");
   /// ```
   ///
   /// Returns None if the ISBN is invalid
   ///
   /// ```
-  /// use library_stdnums::isbn::ISBN;
+  /// use library_stdnums::ISBN;
   /// assert_eq!(ISBN::new("013938143").convert_to_10(), None);
   /// ```
   /// 
   /// Returns None if an ISBN13 begins with '979'
   /// 
   /// ```
-  /// use library_stdnums::isbn::ISBN;
+  /// use library_stdnums::ISBN;
   /// assert_eq!(ISBN::new("9798531132178").convert_to_10(), None);
   /// ```
   pub fn convert_to_10(&self) -> Option<String> {
@@ -111,16 +111,16 @@ impl Valid for ISBN {
   /// Returns true if the ISBN is valid
   /// 
   /// ```
-  /// use library_stdnums::isbn::ISBN;
-  /// use library_stdnums::traits::Valid;
+  /// use library_stdnums::ISBN;
+  /// use library_stdnums::Valid;
   /// assert!(ISBN::new("0139381430").valid());
   /// ```
   ///
   /// Returns false if the ISBN is invalid
   ///
   /// ```
-  /// use library_stdnums::isbn::ISBN;
-  /// use library_stdnums::traits::Valid;
+  /// use library_stdnums::ISBN;
+  /// use library_stdnums::Valid;
   /// assert_eq!(ISBN::new("0139381432").valid(), false);
   /// ```
   fn valid(&self) -> bool {
@@ -139,8 +139,8 @@ impl Normalize for ISBN {
   /// Returns an Option<String> if the ISBN is valid
   /// 
   /// ```
-  /// use library_stdnums::isbn::ISBN;
-  /// use library_stdnums::traits::Normalize;
+  /// use library_stdnums::ISBN;
+  /// use library_stdnums::Normalize;
   /// assert_eq!(ISBN::new("ISBN: 978-0-306-40615-7").normalize().unwrap(), "9780306406157");
   /// assert_eq!(ISBN::new("0-306-40615-2").normalize().unwrap(), "9780306406157");
   /// ```
@@ -148,8 +148,8 @@ impl Normalize for ISBN {
   /// Returns None if the ISBN is invalid
   ///
   /// ```
-  /// use library_stdnums::isbn::ISBN;
-  /// use library_stdnums::traits::Normalize;
+  /// use library_stdnums::ISBN;
+  /// use library_stdnums::Normalize;
   /// assert_eq!(ISBN::new("013938143").normalize(), None);
   /// ```
   fn normalize(&self) -> Option<String> {
