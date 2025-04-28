@@ -17,3 +17,14 @@ To run it locally:
 cargo install --locked cargo-mutants
 cargo mutants
 ```
+
+# Compare the performance of two branches
+
+```
+git checkout branch1
+cargo bench
+git checkout branch2
+cargo bench
+```
+
+The second `cargo bench` run will run various benchmarks and, for each one, report either "Performance has improved." or "Performance has regressed."
