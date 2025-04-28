@@ -10,6 +10,20 @@ impl ISSN {
             identifier: identifier.into(),
         }
     }
+    /// ```
+    /// use library_stdnums::issn::ISSN;
+    /// assert_eq!(ISSN::new("0378-5955").checkdigit(), '5');
+    /// ```
+    pub fn checkdigit(&self) -> char {
+        let clean_string = &self.identifier.replace("-", "");
+        let first_seven = clean_string.chars().take(7);
+        let first_seven_digits = first_seven.filter_map(|x| x.to_digit(10));
+        let multiplied = first_seven_digits.enumerate().map(|(index, digit)| digit * (8 - index as u32));
+
+        let summed: u32 = multiplied.sum();
+        let modulus: u32 = summed % 11;
+        from_digit_to_checkdigit(modulus)
+    }
 }
 
 impl Valid for ISSN {
@@ -26,7 +40,7 @@ impl Valid for ISSN {
             None => return false,
             Some(num) => num.chars().next_back().unwrap()
         };
-        last_digit == checkdigit(&self.identifier)
+        last_digit == self.checkdigit()
     }
 }
 
@@ -46,21 +60,6 @@ impl Normalize for ISSN {
             None
         }
     }
-}
-
-/// ```
-/// use library_stdnums::issn::checkdigit;
-/// assert_eq!(checkdigit("0378-5955"), '5');
-/// ```
-pub fn checkdigit(issn: &str) -> char {
-    let clean_string = issn.replace("-", "");
-    let first_seven = clean_string.chars().take(7);
-    let first_seven_digits = first_seven.filter_map(|x| x.to_digit(10));
-    let multiplied = first_seven_digits.enumerate().map(|(index, digit)| digit * (8 - index as u32));
-
-    let summed: u32 = multiplied.sum();
-    let modulus: u32 = summed % 11;
-    from_digit_to_checkdigit(modulus)
 }
 
 fn from_digit_to_checkdigit(num: u32) -> char {
@@ -92,9 +91,9 @@ mod tests {
     
     #[test]
     fn it_calculates_the_checkdigit() {
-        assert_eq!(checkdigit("0193-4511"), '1');
-        assert_eq!(checkdigit("1043-383X"), 'X');
-        assert_eq!(checkdigit("1561-4670"), '0');
+        assert_eq!(ISSN::new("0193-4511").checkdigit(), '1');
+        assert_eq!(ISSN::new("1043-383X").checkdigit(), 'X');
+        assert_eq!(ISSN::new("1561-4670").checkdigit(), '0');
     }
     #[test]
     fn it_calculates_validity() {
