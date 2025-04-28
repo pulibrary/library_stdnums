@@ -1,5 +1,6 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use library_stdnums::lccn::valid;
+use library_stdnums::lccn::LCCN;
+use library_stdnums::traits::Valid;
 
 fn valid_benchmark(c: &mut Criterion) {
     let lccns = [
@@ -21,7 +22,7 @@ fn valid_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("valid");
     for i in lccns.iter() {
         group.bench_with_input(BenchmarkId::new("char", i), i, |b, i| {
-            b.iter(|| valid(i))
+            b.iter(|| LCCN::new(&**i).valid())
         });
     }
     group.finish();
