@@ -2,73 +2,92 @@
 /// [Library of Congress criteria](https://www.loc.gov/marc/lccn-namespace.html#syntax)
 ///
 /// If the LCCN content is valid (but not necessarily the structure), returns true
-///
-/// ```
-/// use library_stdnums::lccn::valid;
-/// assert!(valid("n78-890351"));
-/// assert!(valid("  2001045944"));
-/// ```
-///
-/// Returns false if the LCCN content is not valid
-///
-/// ```
-/// use library_stdnums::lccn::valid;
-/// assert!(!valid("Bad LCCN"));
-/// assert_eq!(valid("Bad LCCN"), false);
-/// ```
-pub fn valid(lccn: &str) -> bool {
-    let normalized_version = normalized_version(lccn);
-    let clean = str::replace(&normalized_version, '-', "");
-    let suffix = clean.chars().rev().take(8).all(char::is_numeric);
-    if !suffix {
-        return false;
-    }
+use crate::traits::{Normalize, Valid};
+pub struct LCCN {
+    pub identifier: String,
+}
 
-    match clean.len() {
-        8 => true,
-        9 => clean.chars().next().unwrap().is_alphabetic(),
-        10 => {
-            clean[..2].chars().all(char::is_numeric) || clean[..2].chars().all(char::is_alphabetic)
-        }
-        11 => {
-            let first_char = clean.chars().next().unwrap().is_alphabetic();
-            let next_2_numeric = clean[1..3].chars().all(char::is_numeric);
-            let next_2_alpha = clean[1..3].chars().all(char::is_alphabetic);
-            first_char && (next_2_numeric || next_2_alpha)
-        }
-        12 => {
-            let first_2_alpha = clean[1..2].chars().all(char::is_alphabetic);
-            let next_2_numeric = clean[2..4].chars().all(char::is_numeric);
-            first_2_alpha && next_2_numeric
-        }
-        _ => false,
+impl LCCN {
+    pub fn new(identifier: impl Into<String>) -> LCCN {
+      LCCN {identifier: identifier.into()}
     }
 }
 
-/// Normalize an LCCN string based on the
-/// [Library of Congress criteria](https://www.loc.gov/marc/lccn-namespace.html#syntax)
-///
-/// If the LCCN content is valid, it will return it in a `Some`
-///
-/// ```
-/// use library_stdnums::lccn::normalize;
-/// assert_eq!(normalize("n78-890351"), Some("n78890351".to_string()));
-/// assert_eq!(normalize("n78-890351").unwrap(), "n78890351");
-/// ```
-///
-/// Returns None if the LCCN content is not valid
-///
-/// ```
-/// use library_stdnums::lccn::normalize;
-/// assert!(normalize("Bad LCCN").is_none());
-/// ```
-pub fn normalize(lccn: &str) -> Option<String> {
-    let normalized_version = normalized_version(lccn);
-
-    if valid(&normalized_version) {
-        return Some(normalized_version);
+impl Valid for LCCN {
+    ///
+    /// ```
+    /// use library_stdnums::lccn::LCCN;
+    /// use library_stdnums::traits::Valid;
+    /// assert!(LCCN::new("n78-890351").valid());
+    /// assert!(LCCN::new("  2001045944").valid());
+    /// ```
+    ///
+    /// Returns false if the LCCN content is not valid
+    ///
+    /// ```
+    /// use library_stdnums::lccn::LCCN;
+    /// use library_stdnums::traits::Valid;
+    /// assert!(!LCCN::new("Bad LCCN").valid());
+    /// assert_eq!(LCCN::new("Bad LCCN").valid(), false);
+    /// ```
+    fn valid(&self) -> bool {
+        let normalized_version = normalized_version(&self.identifier);
+        let clean = str::replace(&normalized_version, '-', "");
+        let suffix = clean.chars().rev().take(8).all(char::is_numeric);
+        if !suffix {
+            return false;
+        }
+    
+        match clean.len() {
+            8 => true,
+            9 => clean.chars().next().unwrap().is_alphabetic(),
+            10 => {
+                clean[..2].chars().all(char::is_numeric) || clean[..2].chars().all(char::is_alphabetic)
+            }
+            11 => {
+                let first_char = clean.chars().next().unwrap().is_alphabetic();
+                let next_2_numeric = clean[1..3].chars().all(char::is_numeric);
+                let next_2_alpha = clean[1..3].chars().all(char::is_alphabetic);
+                first_char && (next_2_numeric || next_2_alpha)
+            }
+            12 => {
+                let first_2_alpha = clean[1..2].chars().all(char::is_alphabetic);
+                let next_2_numeric = clean[2..4].chars().all(char::is_numeric);
+                first_2_alpha && next_2_numeric
+            }
+            _ => false,
+        }
     }
-    None
+}
+
+impl Normalize for LCCN {
+    /// Normalize an LCCN string based on the
+    /// [Library of Congress criteria](https://www.loc.gov/marc/lccn-namespace.html#syntax)
+    ///
+    /// If the LCCN content is valid, it will return it in a `Some`
+    ///
+    /// ```
+    /// use library_stdnums::lccn::LCCN;
+    /// use library_stdnums::traits::Normalize;
+    /// assert_eq!(LCCN::new("n78-890351").normalize(), Some("n78890351".to_string()));
+    /// assert_eq!(LCCN::new("n78-890351").normalize().unwrap(), "n78890351");
+    /// ```
+    ///
+    /// Returns None if the LCCN content is not valid
+    ///
+    /// ```
+    /// use library_stdnums::lccn::LCCN;
+    /// use library_stdnums::traits::Normalize;
+    /// assert!(LCCN::new("Bad LCCN").normalize().is_none());
+    /// ```
+    fn normalize(&self) -> Option<String> {
+        let normalized_version = normalized_version(&self.identifier);
+
+        if LCCN::new(&normalized_version).valid() {
+            return Some(normalized_version);
+        }
+        None
+    }
 }
 
 fn normalized_version(lccn: &str) -> String {
@@ -96,49 +115,49 @@ mod tests {
 
     #[test]
     fn it_validates_correctly() {
-        assert!(valid("78-890351"));
-        assert!(valid("n78-890351"));
-        assert!(valid("2001-890351"));
-        assert!(valid("nb78-890351"));
-        assert!(valid("agr78-890351"));
-        assert!(valid("n2001-890351"));
-        assert!(valid("nb2001-890351"));
-        assert!(!valid("n78-89035100444"), "Too long");
-        assert!(!valid("n78"), "Too short");
+        assert!(LCCN::new("78-890351").valid());
+        assert!(LCCN::new("n78-890351").valid());
+        assert!(LCCN::new("2001-890351").valid());
+        assert!(LCCN::new("nb78-890351").valid());
+        assert!(LCCN::new("agr78-890351").valid());
+        assert!(LCCN::new("n2001-890351").valid());
+        assert!(LCCN::new("nb2001-890351").valid());
+        assert!(!LCCN::new("n78-89035100444").valid(), "Too long");
+        assert!(!LCCN::new("n78").valid(), "Too short");
         assert!(
-            !valid("378-890351"),
+            !LCCN::new("378-890351").valid(),
             "378-890351 should start with a letter"
         );
         assert!(
-            !valid("naa078-890351"),
+            !LCCN::new("naa078-890351").valid(),
             "naa78-890351 should start with two letters"
         );
         assert!(
-            !valid("122001-890351"),
+            !LCCN::new("122001-890351").valid(),
             "122001-890351 should start with two letters"
         );
         assert!(
-            !valid("n078-890351"),
+            !LCCN::new("n078-890351").valid(),
             "n078-890351 should start with two letters or two digits"
         );
         assert!(
-            !valid("na078-890351"),
+            !LCCN::new("na078-890351").valid(),
             "na078-890351 should start with three letters or digits"
         );
         assert!(
-            !valid("0an78-890351"),
+            !LCCN::new("0an78-890351").valid(),
             "0an78-890351 should start with three letters or digits"
         );
         assert!(
-            !valid("n78-89c0351"),
+            !LCCN::new("n78-89c0351").valid(),
             "n78-89c0351 has a letter after the dash"
         );
         assert!(
-            valid("n  78890351 "),
+            LCCN::new("n  78890351 ").valid(),
             "LCCNs with extra spaces are still considered valid if preprocessed=false"
         );
         assert!(
-            valid("   94014580 /AC/r95"),
+            LCCN::new("   94014580 /AC/r95").valid(),
             "LCCNs with a suffix are considered valid if preprocessed=false"
         );
     }
@@ -166,21 +185,21 @@ mod tests {
     #[test]
     fn it_normalizes() {
         assert_eq!(
-            normalize("2001-000002").unwrap(),
+            LCCN::new("2001-000002").normalize().unwrap(),
             "2001000002",
             "It removes hyphens"
         );
         assert_eq!(
-            normalize("85-2").unwrap(),
+            LCCN::new("85-2").normalize().unwrap(),
             "85000002",
             "It left-fills the substring with zeros until the length is six"
         );
         assert_eq!(
-            normalize("n78-890351").unwrap(),
+            LCCN::new("n78-890351").normalize().unwrap(),
             "n78890351",
             "It retains prefixes"
         );
-        assert!(normalize("n78-89035100444").is_none());
+        assert!(LCCN::new("n78-89035100444").normalize().is_none());
     }
     #[test]
     fn it_normalizes_all_the_ancient_perl_examples() {
@@ -248,7 +267,7 @@ mod tests {
 
         for test in test_examples {
             assert_eq!(
-                normalize(test[0]).unwrap(),
+                LCCN::new(test[0]).normalize().unwrap(),
                 test[1]
             );
         }
@@ -256,7 +275,7 @@ mod tests {
     #[test]
     fn it_normalizes_with_suffixes() {
         assert_eq!(
-            normalize("75-425165//r75").unwrap(),
+            LCCN::new("75-425165//r75").normalize().unwrap(),
             "75425165",
             "It removes suffixes which are not officially part of the lccn"
         );
